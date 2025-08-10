@@ -886,7 +886,7 @@ class BonePickup {
         this.glowTimer = 0;
     }
     
-    update(deltaTime, player) {
+    update(deltaTime, player, game) {
         // Efeito de flutuação
         this.bobOffset += deltaTime * 0.005;
         this.glowTimer += deltaTime;
@@ -900,6 +900,7 @@ class BonePickup {
             
             // Coletado!
             player.unlockMagicWeapon();
+            game.effectsManager.playPickupSound();
             this.active = false;
         }
     }
