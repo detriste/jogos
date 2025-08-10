@@ -481,6 +481,415 @@ class Player {
     }
 }
 
+// Classe dos Esqueletos (Inimigos)
+class Skeleton {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 28;
+        this.height = 44;
+        this.velocityX = 0;
+        this.velocityY = 0;
+        this.speed = 1.5;
+        this.health = 50;
+        this.maxHealth = 50;
+        this.alive = true;
+        this.facingRight = false;
+        this.canAttack = true;
+        
+        // IA
+        this.aiTimer = 0;
+        this.aiState = 'patrol'; // patrol, chase, attack
+        this.patrolDirection = Math.random() > 0.5 ? 1 : -1;
+        this.detectionRange = 120;
+        this.attackRange = 40;
+        
+        // Animação
+        this.animationFrame = 0;
+        this.animationTimer = 0;
+    }
+    
+    update(deltaTime, player, game) {
+        if (!this.alive) return;
+        
+        this.aiTimer += deltaTime;
+        
+        // IA básica
+        const distanceToPlayer = Math.abs(this.x - player.x);
+        const canSeePlayer = distanceToPlayer < this.detectionRange && Math.abs(this.y - player.y) < 60;
+        
+        if (canSeePlayer && distanceToPlayer < this.attackRange) {
+            this.aiState = 'attack';
+        } else if (canSeePlayer) {
+            this.aiState = 'chase';
+        } else {
+            this.aiState = 'patrol';
+        }
+        
+        // Comportamento baseado no estado
+        switch (this.aiState) {
+            case 'patrol':
+                this.velocityX = this.patrolDirection * this.speed * 0.5;
+                if (this.aiTimer > 2000) { // Mudar direção a cada 2 segundos
+                    this.patrolDirection *= -1;
+                    this.aiTimer = 0;
+                }
+                break;
+                
+            case 'chase':
+                const direction = player.x > this.x ? 1 : -1;
+                this.velocityX = direction * this.speed;
+                this.facingRight = direction > 0;
+                break;
+                
+            case 'attack':
+                this.velocityX *= 0.1; // Parar para atacar
+                break;
+        }
+        
+        // Aplicar gravidade
+        this.velocityY += 0.8;
+        
+        // Aplicar movimento
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        
+        // Colisão com o chão
+        if (this.y + this.height > 500) {
+            this.y = 500 - this.height;
+            this.velocityY = 0;
+        }
+        
+        // Limites da tela
+        if (this.x < 0) {
+            this.x = 0;
+            this.patrolDirection = 1;
+        }
+        if (this.x + this.width > 1200) {
+            this.x = 1200 - this.width;
+            this.patrolDirection = -1;
+        }
+        
+        // Aplicar fricção
+        this.velocityX *= 0.9;
+        
+        // Atualizar animação
+        this.updateAnimation(deltaTime);
+    }
+    
+    takeDamage(damage) {
+        this.health -= damage;
+        if (this.health <= 0) {
+            this.alive = false;
+        }
+    }
+    
+    updateAnimation(deltaTime) {
+        this.animationTimer += deltaTime;
+        
+        if (this.animationTimer > 200) {
+            this.animationFrame = (this.animationFrame + 1) % 4;
+            this.animationTimer = 0;
+        }
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        // Espelhar se necessário
+        if (this.facingRight) {
+            ctx.scale(-1, 1);
+            ctx.translate(-this.x - this.width, 0);
+        } else {
+            ctx.translate(this.x, 0);
+        }
+        
+        this.drawPixelSkeleton(ctx);
+        
+        ctx.restore();
+        
+        // Barra de vida
+        if (this.health < this.maxHealth) {
+            this.drawHealthBar(ctx);
+        }
+    }
+    
+    drawPixelSkeleton(ctx) {
+        const colors = {
+            bone: '#F5F5DC',
+            shadow: '#A9A9A9',
+            eyes: '#FF0000'
+        };
+        
+        // Cabeça/crânio
+        ctx.fillStyle = colors.bone;
+        ctx.fillRect(6, this.y, 20, 18);
+        
+        // Olhos vermelhos
+        ctx.fillStyle = colors.eyes;
+        ctx.fillRect(10, this.y + 6, 3, 3);
+        ctx.fillRect(17, this.y + 6, 3, 3);
+        
+        // Maxilar
+        ctx.fillStyle = colors.bone;
+        ctx.fillRect(8, this.y + 12, 16, 6);
+        
+        // Corpo (caixa torácica)
+        ctx.fillStyle = colors.bone;
+        ctx.fillRect(8, this.y + 18, 16, 18);
+        
+        // Costelas (detalhes)
+        ctx.fillStyle = colors.shadow;
+        for (let i = 0; i < 4; i++) {
+            ctx.fillRect(10, this.y + 20 + i * 3, 12, 1);
+        }
+        
+        // Braços
+        ctx.fillStyle = colors.bone;
+        ctx.fillRect(2, this.y + 20, 6, 14);
+        ctx.fillRect(24, this.y + 20, 6, 14);
+        
+        // Pernas
+        ctx.fillStyle = colors.bone;
+        ctx.fillRect(10, this.y + 36, 4, 8);
+        ctx.fillRect(18, this.y + 36, 4, 8);
+        
+        // Animação de caminhada
+        if (Math.abs(this.velocityX) > 0.1) {
+            const walkOffset = Math.sin(this.animationFrame * 0.5) * 1;
+            ctx.translate(0, walkOffset);
+        }
+    }
+    
+    drawHealthBar(ctx) {
+        const barWidth = 30;
+        const barHeight = 4;
+        const barX = this.x + (this.width - barWidth) / 2;
+        const barY = this.y - 10;
+        
+        // Fundo da barra
+        ctx.fillStyle = '#FF0000';
+        ctx.fillRect(barX, barY, barWidth, barHeight);
+        
+        // Vida atual
+        const healthPercent = this.health / this.maxHealth;
+        ctx.fillStyle = '#00FF00';
+        ctx.fillRect(barX, barY, barWidth * healthPercent, barHeight);
+        
+        // Borda
+        ctx.strokeStyle = '#000000';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(barX, barY, barWidth, barHeight);
+    }
+}
+
+// Classe das Flechas
+class Arrow {
+    constructor(x, y, velocityX, damage) {
+        this.x = x;
+        this.y = y;
+        this.width = 16;
+        this.height = 2;
+        this.velocityX = velocityX;
+        this.velocityY = 0;
+        this.damage = damage;
+        this.active = true;
+        this.owner = 'player';
+        this.life = 3000; // 3 segundos
+    }
+    
+    update(deltaTime) {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        
+        this.life -= deltaTime;
+        if (this.life <= 0) {
+            this.active = false;
+        }
+        
+        // Sair da tela
+        if (this.x < -50 || this.x > 1250 || this.y < -50 || this.y > 650) {
+            this.active = false;
+        }
+    }
+    
+    render(ctx) {
+        ctx.save();
+        
+        // Flecha
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(this.x, this.y, this.width - 4, this.height);
+        
+        // Ponta da flecha
+        ctx.fillStyle = '#C0C0C0';
+        if (this.velocityX > 0) {
+            ctx.fillRect(this.x + this.width - 4, this.y - 1, 4, 4);
+        } else {
+            ctx.fillRect(this.x, this.y - 1, 4, 4);
+        }
+        
+        // Penas
+        ctx.fillStyle = '#228B22';
+        if (this.velocityX > 0) {
+            ctx.fillRect(this.x, this.y - 1, 3, 1);
+            ctx.fillRect(this.x, this.y + 2, 3, 1);
+        } else {
+            ctx.fillRect(this.x + this.width - 3, this.y - 1, 3, 1);
+            ctx.fillRect(this.x + this.width - 3, this.y + 2, 3, 1);
+        }
+        
+        ctx.restore();
+    }
+}
+
+// Classe de Projétil Mágico
+class MagicProjectile {
+    constructor(x, y, velocityX, damage) {
+        this.x = x;
+        this.y = y;
+        this.width = 12;
+        this.height = 12;
+        this.velocityX = velocityX;
+        this.velocityY = Math.sin(Date.now() * 0.01) * 2;
+        this.damage = damage;
+        this.active = true;
+        this.owner = 'player';
+        this.life = 4000;
+        this.trail = [];
+    }
+    
+    update(deltaTime) {
+        // Movimento ondulatório
+        this.y += Math.sin(this.x * 0.01) * 0.5;
+        
+        this.x += this.velocityX;
+        
+        // Adicionar à trilha
+        this.trail.push({ x: this.x, y: this.y, life: 300 });
+        
+        // Atualizar trilha
+        this.trail = this.trail.filter(point => {
+            point.life -= deltaTime;
+            return point.life > 0;
+        });
+        
+        this.life -= deltaTime;
+        if (this.life <= 0) {
+            this.active = false;
+        }
+        
+        if (this.x < -50 || this.x > 1250 || this.y < -50 || this.y > 650) {
+            this.active = false;
+        }
+    }
+    
+    render(ctx) {
+        // Desenhar trilha
+        this.trail.forEach((point, index) => {
+            const alpha = point.life / 300;
+            ctx.globalAlpha = alpha * 0.5;
+            ctx.fillStyle = '#9370DB';
+            ctx.fillRect(point.x, point.y, 6, 6);
+        });
+        
+        ctx.globalAlpha = 1;
+        
+        // Desenhar projétil principal
+        ctx.fillStyle = '#9370DB';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+        
+        // Brilho
+        ctx.fillStyle = '#DDA0DD';
+        ctx.fillRect(this.x + 2, this.y + 2, this.width - 4, this.height - 4);
+        
+        // Núcleo brilhante
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(this.x + 4, this.y + 4, 4, 4);
+    }
+}
+
+// Classe de Partículas
+class Particle {
+    constructor(x, y, color = 'red') {
+        this.x = x + Math.random() * 20 - 10;
+        this.y = y + Math.random() * 20 - 10;
+        this.velocityX = (Math.random() - 0.5) * 8;
+        this.velocityY = (Math.random() - 0.5) * 8 - 2;
+        this.life = 500 + Math.random() * 500;
+        this.maxLife = this.life;
+        this.color = color;
+        this.size = 2 + Math.random() * 4;
+    }
+    
+    update(deltaTime) {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        this.velocityY += 0.2; // Gravidade nas partículas
+        this.velocityX *= 0.98; // Fricção
+        this.life -= deltaTime;
+    }
+    
+    render(ctx) {
+        const alpha = this.life / this.maxLife;
+        ctx.globalAlpha = alpha;
+        
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+        
+        ctx.globalAlpha = 1;
+    }
+}
+
+// Classe de Pickup de Osso
+class BonePickup {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 16;
+        this.height = 16;
+        this.active = true;
+        this.bobOffset = 0;
+        this.glowTimer = 0;
+    }
+    
+    update(deltaTime, player) {
+        // Efeito de flutuação
+        this.bobOffset += deltaTime * 0.005;
+        this.glowTimer += deltaTime;
+        
+        // Verificar colisão com jogador
+        if (this.active && 
+            player.x < this.x + this.width &&
+            player.x + player.width > this.x &&
+            player.y < this.y + this.height &&
+            player.y + player.height > this.y) {
+            
+            // Coletado!
+            player.unlockMagicWeapon();
+            this.active = false;
+        }
+    }
+    
+    render(ctx) {
+        const bobY = this.y + Math.sin(this.bobOffset) * 3;
+        const glow = Math.sin(this.glowTimer * 0.01) * 0.3 + 0.7;
+        
+        ctx.globalAlpha = glow;
+        
+        // Desenhar osso
+        ctx.fillStyle = '#F5F5DC';
+        ctx.fillRect(this.x + 2, bobY + 2, 12, 4);
+        ctx.fillRect(this.x, bobY, 4, 8);
+        ctx.fillRect(this.x + 12, bobY + 8, 4, 8);
+        
+        // Brilho mágico
+        ctx.fillStyle = '#9370DB';
+        ctx.fillRect(this.x + 4, bobY + 1, 8, 6);
+        
+        ctx.globalAlpha = 1;
+    }
+}
+
 // Inicializar jogo quando a página carregar
 window.addEventListener('load', () => {
     new Game();
