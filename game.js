@@ -11,6 +11,9 @@ class Game {
         this.friction = 0.85;
         
         // Inicializar componentes
+        this.effectsManager = new EffectsManager();
+        this.particleSystem = new ParticleSystem();
+        this.gameOverScreen = new GameOverScreen();
         this.player = new Player(100, 400);
         this.enemies = [];
         this.projectiles = [];
