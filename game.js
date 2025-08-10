@@ -206,7 +206,10 @@ class Game {
             projectile.render(this.ctx);
         });
         
-        // Desenhar partículas
+        // Desenhar sistema de partículas
+        this.particleSystem.render(this.ctx);
+        
+        // Desenhar partículas antigas
         this.particles.forEach(particle => {
             particle.render(this.ctx);
         });
@@ -215,6 +218,9 @@ class Game {
         this.pickups.forEach(pickup => {
             pickup.render(this.ctx);
         });
+        
+        // Desenhar tela de game over
+        this.gameOverScreen.render(this.ctx, this.canvas);
     }
     
     drawBackground() {
