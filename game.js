@@ -386,6 +386,7 @@ class Player {
                 this.currentWeapon.damage
             );
             game.projectiles.push(arrow);
+            game.effectsManager.playBowSound();
         } else if (this.currentWeapon.type === 'magic') {
             // Criar projétil mágico
             const magic = new MagicProjectile(
@@ -395,6 +396,10 @@ class Player {
                 this.currentWeapon.damage
             );
             game.projectiles.push(magic);
+            game.effectsManager.playMagicSound();
+        } else {
+            // Ataque melee - som de espada
+            game.effectsManager.playSwordSound();
         }
         // Ataque melee é tratado na detecção de colisão
     }
