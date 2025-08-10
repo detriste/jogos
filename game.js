@@ -79,7 +79,7 @@ class Game {
         
         // Atualizar pickups
         this.pickups.forEach(pickup => {
-            pickup.update(deltaTime, this.player);
+            pickup.update(deltaTime, this.player, this);
         });
         
         // Remover pickups coletados
