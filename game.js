@@ -135,9 +135,10 @@ class Game {
     }
     
     checkMeleeCollision(player, enemy) {
-        const attackRange = 60;
+        const attackRange = 80;
         const distance = Math.abs(player.x - enemy.x);
-        return distance < attackRange && Math.abs(player.y - enemy.y) < 50;
+        const verticalDistance = Math.abs(player.y - enemy.y);
+        return distance < attackRange && verticalDistance < 60;
     }
     
     createHitEffect(x, y) {
