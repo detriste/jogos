@@ -111,6 +111,7 @@ class Game {
                         // Se morreu, criar pickup de osso
                         if (!enemy.alive) {
                             this.pickups.push(new BonePickup(enemy.x, enemy.y));
+                            this.effectsManager.playDeathSound();
                         }
                     }
                 });
