@@ -1,11 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Jogo de Plataforma 2D</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <p>goku</p>
+    <div class="game-container">
+        <div class="ui-overlay">
+            <div class="health-bar">
+                <div class="health-label">VIDA:</div>
+                <div class="health-fill" id="healthFill"></div>
+            </div>
+            <div class="weapon-display">
+                <div class="weapon-label">ARMA:</div>
+                <div class="weapon-icon" id="weaponIcon">🗡️</div>
+                <div class="weapon-name" id="weaponName">ESPADA</div>
+            </div>
+            <div class="controls-info">
+                <div>↑↓←→ Mover | ESPAÇO Atacar | Q Trocar Arma</div>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="1200" height="600"></canvas>
+    </div>
+    <script src="game.js"></script>
 </body>
 </html>

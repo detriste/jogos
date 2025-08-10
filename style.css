@@ -1,0 +1,128 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #2c1810, #4a2c2a);
+    font-family: 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.game-container {
+    position: relative;
+    border: 4px solid #8B4513;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    background: #000;
+}
+
+#gameCanvas {
+    display: block;
+    background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 100%);
+    border-radius: 4px;
+}
+
+.ui-overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    pointer-events: none;
+}
+
+.health-bar {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #FFD700;
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.health-label {
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.health-fill {
+    width: 100px;
+    height: 12px;
+    background: #FF0000;
+    border: 1px solid #000;
+    border-radius: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.health-fill::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #00FF00, #FFFF00, #FF0000);
+    transition: width 0.3s ease;
+}
+
+.weapon-display {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #FFD700;
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.weapon-label {
+    color: #FFD700;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.weapon-icon {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.weapon-name {
+    color: #FFF;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.controls-info {
+    position: absolute;
+    bottom: -40px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #FFD700;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    border: 1px solid #8B4513;
+}
+
+/* Pixel art style */
+canvas {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
