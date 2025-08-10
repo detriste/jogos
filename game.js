@@ -48,6 +48,12 @@ class Game {
     }
     
     update(deltaTime) {
+        // Verificar se jogador morreu
+        if (this.player.health <= 0) {
+            this.gameOverScreen.show();
+            return;
+        }
+        
         // Atualizar jogador
         this.player.update(deltaTime, this.keys, this);
         
@@ -62,7 +68,10 @@ class Game {
             return projectile.active;
         });
         
-        // Atualizar partículas
+        // Atualizar sistema de partículas
+        this.particleSystem.update(deltaTime);
+        
+        // Atualizar partículas antigas
         this.particles = this.particles.filter(particle => {
             particle.update(deltaTime);
             return particle.life > 0;
@@ -81,6 +90,9 @@ class Game {
         
         // Atualizar UI
         this.updateUI();
+        
+        // Atualizar tela de game over
+        this.gameOverScreen.update(deltaTime);
     }
     
     checkCollisions() {
