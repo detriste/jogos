@@ -327,6 +327,7 @@ class Player {
         if (keys['ArrowUp'] && this.onGround) {
             this.velocityY = -this.jumpPower;
             this.onGround = false;
+            game.effectsManager.playJumpSound();
         }
         
         // Ataque
