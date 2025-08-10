@@ -105,7 +105,8 @@ class Game {
                         projectile.active = false;
                         
                         // Efeito de hit
-                        this.createHitEffect(enemy.x, enemy.y);
+                        this.particleSystem.createBloodSplash(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
+                        this.effectsManager.playHitSound();
                         
                         // Se morreu, criar pickup de osso
                         if (!enemy.alive) {
