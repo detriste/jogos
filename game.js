@@ -338,6 +338,7 @@ class Player {
         // Trocar arma
         if (keys['q'] || keys['Q']) {
             this.switchWeapon();
+            game.effectsManager.playWeaponSwitchSound();
             keys['q'] = false;
             keys['Q'] = false;
         }
