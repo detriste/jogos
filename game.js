@@ -134,10 +134,13 @@ class Game {
             this.enemies.forEach(enemy => {
                 if (enemy.alive && this.checkMeleeCollision(this.player, enemy)) {
                     enemy.takeDamage(this.player.currentWeapon.damage);
-                    this.createHitEffect(enemy.x, enemy.y);
+                    this.particleSystem.createBloodSplash(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
+                    this.particleSystem.createSwordSlash(enemy.x, enemy.y, this.player.facingRight ? 1 : -1);
+                    this.effectsManager.playHitSound();
                     
                     if (!enemy.alive) {
                         this.pickups.push(new BonePickup(enemy.x, enemy.y));
+                        this.effectsManager.playDeathSound();
                     }
                 }
             });
